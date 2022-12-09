@@ -1,64 +1,63 @@
+
 import socket
 import threading
-import random
 import time
 
-sair = "!OUT" #Texto para desconectar Apartamento
-alive = True
-maxtime = 10 #Tempo Maximo
+IP = '127.0.0.1'                              
+PORTA = 8000
+SERV = (IP,PORTA)
+sair = "!sair"
 
-#Causas
-c1 = "Fez um Barulho acima dos 1000 decibeis"
-c2 = "Está Arrastando Movéis após as 22h"
-c3 = "Está carregando moveis de mudança fora da garagem"
-c4 = "Barulho Elevado de Cachorro!"
-c5 = "Barulho Elevado de Criança chorando!"
-c6 = "Barulho Elevado de Calçado Alto!"
+def listen_ap():
 
-causes = [c1,c2,c3,c4,c5,c6] #Array de Motivos para Notificação
-
-#Função notificação de barulhos
-def noises():
-    while alive:
-        exec = 0 #Tempo de execução
-        time.sleep(10)
-        exec += 1
-        num = random.randint(1,threading.activeCount() - 1) #Sorteia apartamento
-        notification = random.choice(causes) #Sorteia Causa
-        print(f"-> Apartamento {num}: {notification}. [ENTRAR EM CONTATO]") #Notificação
-
-        if (exec >= maxtime): #Pausa
-            exec = 0
-            time.sleep(5)
+    ap_listen = udp.recvfrom(1024)
+    #ap_listen = ap_listen.decode('utf8')
+    strtoint = int(ap_listen[0])
+    #print(ap_listen[0])
 
 
 
- 
-#Thread de Gerenciamento de apartamentos
+
+
+    if (strtoint <= 70):
+        pass
+
+    if (strtoint >= 70 and strtoint <= 79):
+        print(f"Apartamento {ap_num}: Está causando um Barulho Leve")
+
+    if (strtoint >= 80 and strtoint <= 89):
+        print(f"Apartamento {ap_num}: Está causando um Barulho Moderado")
+
+    if (strtoint >= 90 and strtoint <= 139):
+        print(f"Apartamento {ap_num}: Está causando um Barulho Alto!")
+    
+    if (strtoint >= 140):
+        print(f"Apartamento {ap_num}: Está causando um Barulho Altissimo! [ENTRAR EM CONTATO]")
+
+
+
 def handle_client(con,adress):
-    print(f"Apartamento entrou {adress}")
-    time.sleep(5)
-    noises()
 
-    while alive:
-        ap_sair = con.recv(1024)
+    
+    aliveV = True
+
+    while aliveV:
+        print(f"Apartamento entrou {adress}")
+        time.sleep(5)
+        ap_sair = udp.recvfrom(1024)
         if ap_sair == sair:
-            alive = False           
-        con.send(ap_sair.encode())
+            aliveV = False        
     con.close()
 
 
-#Server Central
-def main():
-    print("Central Online!")
-    SERVER = ('127.0.0.1', 8000) #Configura server
-    TCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    TCP.bind(SERVER)
-    TCP.listen(1)
-    while True:
-        con,adress = TCP.accept()
-        thread = threading.Thread(target=handle_client,args=(con,adress)) #Monta Thread
-        thread.start() #Executa Thread
-        print(f"Apartamento {threading.activeCount() - 1} Conectou-se") #Gerencia Threads
-
-main()
+udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+SERVIDOR = (IP, PORTA) 
+udp.bind(SERVIDOR) 
+                                
+while True:
+    con, adress = udp.recvfrom(1024)
+    thread = threading.Thread(target=handle_client,args=(con,adress)) #Monta Thread
+    thread.start() #Executa Thread
+    ap_num = (threading.activeCount() - 1)
+    print(f"Apartamento {ap_num} Conectou-se") #Gerencia Threads 
+    listen_ap()

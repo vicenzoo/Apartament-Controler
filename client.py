@@ -1,24 +1,54 @@
 import socket
+import random
+import time
 
-sair = "!OUT" #Texto para desconectar Apartamento
+IP_Servidor = '127.0.0.1'
+# Endereco IP do Servidor
+             
+PORTA = 8000                  
+# Porta em que o servidor estara ouvindo
+sair = '!sair'
+
+udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+DESTINO = (IP_Servidor, PORTA)
+Entrou = "Apartamento entrou" 
+udp.sendto (bytes(Entrou,"utf8"), DESTINO) 
+
+def handle_aps():
+    barulho = ''
+    time.sleep(5)
+    nivel = random.randint(50,140)
+    print(nivel)
+
+    if (nivel >= 70 and nivel <= 90):
+        barulho = ("Apartamento: emitiu som de mais de 70 decibeis") 
+        udp.sendto(bytes(str(nivel), 'utf8'), DESTINO)
+
+    if (nivel >= 90 and nivel <= 110):
+
+        barulho = ("Apartamento: emitiu som de mais de 80 decibeis") 
+        udp.sendto(bytes(str(nivel), 'utf8'), DESTINO)
+
+    if (nivel >= 110 and nivel <= 139):
+        barulho = ("Apartamento: emitiu som de de mais de 100 decibeis")
+        udp.sendto(bytes(str(nivel), 'utf8'), DESTINO)
+
+    if (nivel >= 140):
+        barulho = ("Apartamento: emitiu som de 140 ou mais decibeis") 
+        udp.sendto(bytes(str(nivel), 'utf8'), DESTINO)
+
+    print(barulho)
 
 
-def main():
-    SERVER = ('127.0.0.1', 8000)#Configura Cliente
-    TCP = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    TCP.connect(SERVER)
+handle_aps()
+alive = True
 
-    alive = True
-    while alive:
-        try:
-            msag = input()
-            TCP.send(msag.encode()) #Espaço para comando de saida
-            if(msag == sair):
-                alive = False      
-        except:
-            alive = False
-            TCP.close()
-            pass
-
-
-main()
+while alive:
+    
+    try:
+        Mensagem = input()           
+        udp.sendto (bytes(Mensagem,"utf8"), DESTINO)
+    except:
+        alive = False
+        udp.close()
+        pass
