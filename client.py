@@ -11,14 +11,17 @@ sair = '!sair'
 
 udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 DESTINO = (IP_Servidor, PORTA)
-Entrou = "Apartamento entrou" 
+Entrou = "" 
 udp.sendto (bytes(Entrou,"utf8"), DESTINO) 
 
 def handle_aps():
     barulho = ''
-    time.sleep(5)
-    nivel = random.randint(50,140)
+    time.sleep(2)
+    nivel = random.randint(50,200)
     print(nivel)
+
+    if(nivel <= 69):
+        udp.sendto(bytes(str(nivel), 'utf8'), DESTINO)
 
     if (nivel >= 70 and nivel <= 90):
         barulho = ("Apartamento: emitiu som de mais de 70 decibeis") 
@@ -46,8 +49,7 @@ alive = True
 while alive:
     
     try:
-        Mensagem = input()           
-        udp.sendto (bytes(Mensagem,"utf8"), DESTINO)
+       Mensagem = input()           
     except:
         alive = False
         udp.close()
